@@ -1,2 +1,3 @@
 # codex-press
-Codex Press toolkit, downloads, versioning, issues/discussions
+
+Codex Press is a free Obsidian-based toolkit for planning, drafting, managing and compiling long-form fiction projects.
