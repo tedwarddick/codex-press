@@ -23,11 +23,28 @@ const exportType = await tp.system.suggester(
   ["none", "pdf", "docx", "both"]
 );
 
+let pdfLayoutProfile = "kdp_6x9";
+
+if (exportType === "pdf" || exportType === "both") {
+  pdfLayoutProfile = await tp.system.suggester(
+    [
+      "Paperback 6 x 9 - KDP trade default",
+      "Compact 5.5 x 8.5 - small paperback",
+      "Draft A4 - review copy"
+    ],
+    [
+      "kdp_6x9",
+      "compact_55x85",
+      "draft_a4"
+    ]
+  );
+}
+
 /* =========================
    HELPERS
 ========================= */
 
-const CODEX_VERSION = "1.4.6";
+const CODEX_VERSION = "1.4.7";
 const compileDate = window.moment().format("YYYY-MM-DD");
 
 // Disable Pandoc YAML metadata blocks because manuscript prose can legitimately
@@ -36,6 +53,33 @@ const compileDate = window.moment().format("YYYY-MM-DD");
 // "YAML parse exception... mapping values are not allowed in this context".
 const PANDOC_FROM_PDF = "markdown+raw_tex+fenced_divs-yaml_metadata_block";
 const PANDOC_FROM_DOCX = "markdown-yaml_metadata_block";
+
+const PDF_LAYOUT_PROFILES = {
+  // Default profile for KDP-style trade paperback exports.
+  // This is intentionally closer to the PRIME paperback profile than the older
+  // compact 5.5 x 8.5 template, which caused large reflow/page-count changes.
+  kdp_6x9: {
+    classoption: "twoside,openright",
+    fontsize: "10pt",
+    geometry: "paperwidth=6in,paperheight=9in,inner=0.75in,outer=0.55in,top=0.70in,bottom=0.75in"
+  },
+
+  compact_55x85: {
+    classoption: "twoside,openright",
+    fontsize: "10pt",
+    geometry: "paperwidth=5.5in,paperheight=8.5in,inner=0.9in,outer=0.7in,top=0.78in,bottom=0.82in"
+  },
+
+  draft_a4: {
+    classoption: "oneside,openany",
+    fontsize: "11pt",
+    geometry: "paperwidth=8.27in,paperheight=11.69in,inner=1in,outer=1in,top=1in,bottom=1in"
+  }
+};
+
+function pdfLayoutVariables(profileKey) {
+  return PDF_LAYOUT_PROFILES[profileKey] || PDF_LAYOUT_PROFILES.kdp_6x9;
+}
 
 // Mermaid diagrams must be rendered before the generic code-block converter runs,
 // otherwise Pandoc/LaTeX will print them as code rather than diagrams.
@@ -2176,7 +2220,8 @@ if (exportType !== "none") {
   let cmd = "";
 
   if (exportType === "pdf" || exportType === "both") {
-    cmd += `pandoc --from=${PANDOC_FROM_PDF} "${absPdfMdPath}" -o "${absOutputBase}.pdf" --standalone --pdf-engine=xelatex --pdf-engine-opt=-halt-on-error --pdf-engine-opt=-interaction=nonstopmode --wrap=preserve -V documentclass=scrbook -V classoption=twoside,openright -V fontsize=10pt -V geometry:paperwidth=5.5in,paperheight=8.5in,inner=0.9in,outer=0.7in,top=0.78in,bottom=0.82in -V secnumdepth=0 -V hyphenpenalty=5000 -V exhyphenpenalty=5000 --top-level-division=chapter --include-in-header "${absHeaderPath}"\n`;
+    const layout = pdfLayoutVariables(pdfLayoutProfile);
+    cmd += `pandoc --from=${PANDOC_FROM_PDF} "${absPdfMdPath}" -o "${absOutputBase}.pdf" --standalone --pdf-engine=xelatex --pdf-engine-opt=-halt-on-error --pdf-engine-opt=-interaction=nonstopmode --wrap=preserve -V documentclass=scrbook -V classoption=${layout.classoption} -V fontsize=${layout.fontsize} -V geometry:${layout.geometry} -V secnumdepth=0 -V hyphenpenalty=5000 -V exhyphenpenalty=5000 --top-level-division=chapter --include-in-header "${absHeaderPath}"\n`;
   }
 
   if (exportType === "docx" || exportType === "both") {
