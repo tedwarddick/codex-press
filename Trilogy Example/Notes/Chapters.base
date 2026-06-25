@@ -1,0 +1,36 @@
+formulas:
+  Untitled: |
+    link(chapter)
+  Date: (date("2026-04-03") + (duration("1d") * story_day)).format("DD-MMM-YYYY")
+  Day: (date("2026-04-03") + (duration("1d") * story_day)).format("dddd")
+  Where: location+domain
+properties:
+  formula.Untitled:
+    displayName: Scene Notes
+  formula.Date:
+    displayName: Story_Date
+views:
+  - type: table
+    name: Table
+    filters:
+      and:
+        - type.containsAny("chapter")
+        - file.folder != "Templates"
+    groupBy:
+      property: book
+      direction: ASC
+    order:
+      - chapter
+      - title
+      - pov
+      - file.name
+      - story_day
+      - formula.Date
+      - formula.Day
+      - story_date
+    sort:
+      - property: chapter
+        direction: ASC
+    columnSize:
+      note.story_day: 157
+      formula.Date: 186

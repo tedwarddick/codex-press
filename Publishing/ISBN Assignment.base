@@ -1,0 +1,16 @@
+views:
+  - type: table
+    name: Table
+    filters:
+      and:
+        - type == "book"
+        - file.folder != "Templates"
+    order:
+      - file.name
+      - isbn
+      - imprint
+      - publisher
+    columnSize:
+      file.name: 227
+      note.isbn_epub: 188
+      note.isbn_paper: 193

@@ -1,0 +1,11 @@
+{
+  "types": {
+    "aliases": "aliases",
+    "cssclasses": "multitext",
+    "tags": "tags",
+    "first_appearance": "text",
+    "counterpoint": "text",
+    "linked_entities": "multitext",
+    "pov": "text"
+  }
+}

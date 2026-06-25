@@ -1,0 +1,20 @@
+views:
+  - type: cards
+    name: View
+    filters:
+      and:
+        - type == "book"
+        - file.folder != "Templates"
+    order:
+      - file.name
+      - title
+      - subtitle
+      - series
+      - series_book
+      - description
+      - version
+      - isbn_epub
+      - isbn_paper
+      - isbn_hard
+    image: note.cover_image
+    imageFit: contain
